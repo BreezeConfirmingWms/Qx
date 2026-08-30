@@ -1,0 +1,14 @@
+# Quantumult X 配置片段 — Heptabase 订阅强制 active
+# 与 heptabase-subscription.js 配套使用。
+#
+# 1) 把 heptabase-subscription.js 放到 iCloud/Quantumult X/Scripts/ 下
+# 2) 把下面 [rewrite_local] 的规则加入 quantumultx.conf
+# 3) 重启 Quantumult X 生效
+#
+# Mitm 需要 api.heptabase.com 的证书信任（QX 默认对未匹配 hostname 的 https 不解密）
+
+[rewrite_local]
+^https?:\/\/api\.heptabase\.com\/auth\/subscription$ url script-response-body heptabase-subscription.js
+
+[mitm]
+hostname = api.heptabase.com
