@@ -1,14 +1,29 @@
-# Quantumult X 配置片段 — Heptabase 订阅强制 active
-# 与 heptabase-subscription.js 配套使用。
+# Quantumult X — Heptabase 订阅强制 active
 #
-# 1) 把 heptabase-subscription.js 放到 iCloud/Quantumult X/Scripts/ 下
-# 2) 把下面 [rewrite_local] 的规则加入 quantumultx.conf
-# 3) 重启 Quantumult X 生效
+# 对齐 patch_asar.py / app-example/new：
+#   status=active, shouldCancelAtPeriodEnd=false
+#   id / priceId 用固定 UUID，currentPeriodEnd=1893427200
 #
-# Mitm 需要 api.heptabase.com 的证书信任（QX 默认对未匹配 hostname 的 https 不解密）
+# 安装：
+#   1. 把 heptabase-subscription.js 放到
+#        iCloud/Quantumult X/Scripts/
+#      或 Quantumult X 本地 Scripts 目录
+#   2. 把下面三段合并进 quantumultx.conf（同名 section 只保留一份，追加规则）
+#   3. 开启 MitM，安装并信任 QX CA
+#   4. 开启 Rewrite
+#
+# 推荐 echo-response：不请求上游，等价 asar 把 retrieveSubscription 短路。
+# 若 echo 未命中，可改用下一行 response-body（需上游有响应，脚本会把 4xx 翻成 200）。
 
 [rewrite_local]
-^https?:\/\/api\.heptabase\.com\/auth\/subscription$ url script-response-body heptabase-subscription.js
+# ll.retrieveSubscription — 登录 Ge() + 刷新 P5t() 都走这条
+^https://api\.heptabase\.com/auth/subscription$ url script-echo-response heptabase-subscription.js
+
+# 可选兜底（与上一行不要同时启用）
+# ^https://api\.heptabase\.com/auth/subscription$ url script-response-body heptabase-subscription.js
+
+# Heptabase 自身订阅 API，避免 endFreeTrial / update 把状态写回去
+^https://api\.heptabase\.com/subscription/(endFreeTrial|update|generateUpdatePreview)$ url reject-200
 
 [mitm]
 hostname = api.heptabase.com
