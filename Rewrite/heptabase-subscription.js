@@ -1,3 +1,11 @@
+/*
+[rewrite_local]
+^https:\/\/api\.heptabase\.com\/auth\/subscription$ url script-echo-response https://raw.githubusercontent.com/BreezeConfirmingWms/Qx/refs/heads/develop/Rewrite/heptabase-subscription.js
+^https:\/\/api\.heptabase\.com\/subscription\/(endFreeTrial|update|generateUpdatePreview)$ url reject-200
+[mitm]
+hostname = api.heptabase.com
+*/
+
 /**
  * Quantumult X — Heptabase 订阅强制 active
  *
